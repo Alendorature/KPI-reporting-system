@@ -2,7 +2,7 @@
 	<img alt="logo" src="https://oscimg.oschina.net/oscnet/up-d3d0a9303e11d522a06cd263f3079027715.png">
 </p>
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">基于 SSM 的学院级科研 KPI 填报系统</h1>
-<h4 align="center">KPI-reporting-system</h4>
+<h3 align="center">KPI-reporting-system</h3>
 
 ## 内置功能
 
