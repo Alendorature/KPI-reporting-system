@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiTypeMapper">
+    
+    <resultMap type="KpiType" id="KpiTypeResult">
+        <result property="typeId"    column="type_id"    />
+        <result property="typeName"    column="type_name"    />
+        <result property="typeStatus"    column="type_status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiTypeVo">
+        select type_id, type_name, type_status, create_by, create_time, update_by, update_time, remark from kpi_type
+    </sql>
+
+    <select id="selectKpiTypeList" parameterType="KpiType" resultMap="KpiTypeResult">
+        <include refid="selectKpiTypeVo"/>
+        <where>  
+            <if test="typeName != null  and typeName != ''"> and type_name like concat('%', #{typeName}, '%')</if>
+            <if test="typeStatus != null  and typeStatus != ''"> and type_status = #{typeStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiTypeByTypeId" parameterType="Long" resultMap="KpiTypeResult">
+        <include refid="selectKpiTypeVo"/>
+        where type_id = #{typeId}
+    </select>
+        
+    <insert id="insertKpiType" parameterType="KpiType" useGeneratedKeys="true" keyProperty="typeId">
+        insert into kpi_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name,</if>
+            <if test="typeStatus != null and typeStatus != ''">type_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">#{typeName},</if>
+            <if test="typeStatus != null and typeStatus != ''">#{typeStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiType" parameterType="KpiType">
+        update kpi_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name = #{typeName},</if>
+            <if test="typeStatus != null and typeStatus != ''">type_status = #{typeStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where type_id = #{typeId}
+    </update>
+
+    <delete id="deleteKpiTypeByTypeId" parameterType="Long">
+        delete from kpi_type where type_id = #{typeId}
+    </delete>
+
+    <delete id="deleteKpiTypeByTypeIds" parameterType="String">
+        delete from kpi_type where type_id in 
+        <foreach item="typeId" collection="array" open="(" separator="," close=")">
+            #{typeId}
+        </foreach>
+    </delete>
+</mapper>

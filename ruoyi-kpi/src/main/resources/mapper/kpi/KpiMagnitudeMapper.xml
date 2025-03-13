@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiMagnitudeMapper">
+    
+    <resultMap type="KpiMagnitude" id="KpiMagnitudeResult">
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="typeId"    column="type_id"    />
+        <result property="typeName"    column="type_name"    />
+        <result property="basicScore"    column="basic_score"    />
+        <result property="extroScore"    column="extro_score"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiMagnitudeVo">
+        select magnitude_id, magnitude_name, type_id, basic_score, extro_score, create_by, create_time, update_by, update_time, remark from kpi_magnitude
+    </sql>
+    <sql id="selectKpiMagnitudeVoNew">
+        select m.*,t.type_name from kpi_magnitude m left join  kpi_type t on t.type_id=m.type_id
+    </sql>
+
+    <select id="selectKpiMagnitudeList" parameterType="KpiMagnitude" resultMap="KpiMagnitudeResult">
+        <include refid="selectKpiMagnitudeVoNew"/>
+        <where>  
+            <if test="magnitudeName != null  and magnitudeName != ''"> and m.magnitude_name like concat('%', #{magnitudeName}, '%')</if>
+            <if test="typeId != null "> and m.type_id = #{typeId}</if>
+            <if test="basicScore != null "> and m.basic_score = #{basicScore}</if>
+            <if test="extroScore != null "> and m.extro_score = #{extroScore}</if>
+
+            <if test="typeIds != null "> and m.type_id in
+             <foreach collection="typeIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectKpiMagnitudeByMagnitudeId" parameterType="Long" resultMap="KpiMagnitudeResult">
+        <include refid="selectKpiMagnitudeVo"/>
+        where magnitude_id = #{magnitudeId}
+    </select>
+        
+    <insert id="insertKpiMagnitude" parameterType="KpiMagnitude" useGeneratedKeys="true" keyProperty="magnitudeId">
+        insert into kpi_magnitude
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="magnitudeName != null and magnitudeName != ''">magnitude_name,</if>
+            <if test="typeId != null">type_id,</if>
+            <if test="basicScore != null">basic_score,</if>
+            <if test="extroScore != null">extro_score,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="magnitudeName != null and magnitudeName != ''">#{magnitudeName},</if>
+            <if test="typeId != null">#{typeId},</if>
+            <if test="basicScore != null">#{basicScore},</if>
+            <if test="extroScore != null">#{extroScore},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiMagnitude" parameterType="KpiMagnitude">
+        update kpi_magnitude
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="magnitudeName != null and magnitudeName != ''">magnitude_name = #{magnitudeName},</if>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="basicScore != null">basic_score = #{basicScore},</if>
+            <if test="extroScore != null">extro_score = #{extroScore},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where magnitude_id = #{magnitudeId}
+    </update>
+
+    <delete id="deleteKpiMagnitudeByMagnitudeId" parameterType="Long">
+        delete from kpi_magnitude where magnitude_id = #{magnitudeId}
+    </delete>
+
+    <delete id="deleteKpiMagnitudeByMagnitudeIds" parameterType="String">
+        delete from kpi_magnitude where magnitude_id in 
+        <foreach item="magnitudeId" collection="array" open="(" separator="," close=")">
+            #{magnitudeId}
+        </foreach>
+    </delete>
+</mapper>

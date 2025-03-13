@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiAwardsMapper">
+    
+    <resultMap type="KpiAwards" id="KpiAwardsResult">
+        <result property="awardsId"    column="awards_id"    />
+        <result property="awardsName"    column="awards_name"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="acquireTime"    column="acquire_time"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiAwardsVo">
+        select awards_id, awards_name, teacher_id, acquire_time, ranking, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_awards
+    </sql>
+
+    <sql id="selectKpiStandardVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_awards t
+         left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+
+    <select id="selectKpiAwardsList" parameterType="KpiAwards" resultMap="KpiAwardsResult">
+        <include refid="selectKpiStandardVoNew"/>
+        <where>  
+            <if test="awardsName != null  and awardsName != ''"> and t.awards_name like concat('%', #{awardsName}, '%')</if>
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="params.beginAcquireTime != null and params.beginAcquireTime != '' and params.endAcquireTime != null and params.endAcquireTime != ''"> and t.acquire_time between #{params.beginAcquireTime} and #{params.endAcquireTime}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiAwardsByAwardsId" parameterType="Long" resultMap="KpiAwardsResult">
+        <include refid="selectKpiAwardsVo"/>
+        where awards_id = #{awardsId}
+    </select>
+
+    <select id="selectKpiAwardsListProjectScoreDesc"  resultMap="KpiAwardsResult">
+        <include refid="selectKpiAwardsVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+        
+    <insert id="insertKpiAwards" parameterType="KpiAwards" useGeneratedKeys="true" keyProperty="awardsId">
+        insert into kpi_awards
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="awardsName != null and awardsName != ''">awards_name,</if>
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="acquireTime != null">acquire_time,</if>
+            <if test="ranking != null">ranking,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="awardsName != null and awardsName != ''">#{awardsName},</if>
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="acquireTime != null">#{acquireTime},</if>
+            <if test="ranking != null">#{ranking},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiAwards" parameterType="KpiAwards">
+        update kpi_awards
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="awardsName != null and awardsName != ''">awards_name = #{awardsName},</if>
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="acquireTime != null">acquire_time = #{acquireTime},</if>
+            <if test="ranking != null">ranking = #{ranking},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where awards_id = #{awardsId}
+    </update>
+
+    <delete id="deleteKpiAwardsByAwardsId" parameterType="Long">
+        delete from kpi_awards where awards_id = #{awardsId}
+    </delete>
+
+    <delete id="deleteKpiAwardsByAwardsIds" parameterType="String">
+        delete from kpi_awards where awards_id in 
+        <foreach item="awardsId" collection="array" open="(" separator="," close=")">
+            #{awardsId}
+        </foreach>
+    </delete>
+</mapper>

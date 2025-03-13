@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiScienceMapper">
+    
+    <resultMap type="KpiScience" id="KpiScienceResult">
+        <result property="scienceId"    column="science_id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="scienceName"    column="science_name"    />
+        <result property="scienceNumber"    column="science_number"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="scienceMoney"    column="science_money"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiScienceVo">
+        select science_id, teacher_id,science_name, science_number, publish_time, science_money, ranking, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_science
+    </sql>
+
+    <sql id="selectKpiStandardVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_science t
+                                                                                                 left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+    <select id="selectKpiScienceList" parameterType="KpiScience" resultMap="KpiScienceResult">
+        <include refid="selectKpiStandardVoNew"/>
+        <where>
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="scienceName != null  and scienceName != ''"> and t.science_name like concat('%', #{scienceName}, '%')</if>
+            <if test="scienceNumber != null  and scienceNumber != ''"> and t.science_number like concat('%', #{scienceNumber}, '%')</if>
+            <if test="params.beginPublishTime != null and params.beginPublishTime != '' and params.endPublishTime != null and params.endPublishTime != ''"> and t.publish_time between #{params.beginPublishTime} and #{params.endPublishTime}</if>
+            <if test="scienceMoney != null "> and t.science_money = #{scienceMoney}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiScienceByScienceId" parameterType="Long" resultMap="KpiScienceResult">
+        <include refid="selectKpiScienceVo"/>
+        where science_id = #{scienceId}
+    </select>
+
+    <select id="selectKpiScienceListProjectScoreDesc"  resultMap="KpiScienceResult">
+        <include refid="selectKpiScienceVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+        
+    <insert id="insertKpiScience" parameterType="KpiScience" useGeneratedKeys="true" keyProperty="scienceId">
+        insert into kpi_science
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="scienceName != null and scienceName != ''">science_name,</if>
+            <if test="scienceNumber != null and scienceNumber != ''">science_number,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="scienceMoney != null">science_money,</if>
+            <if test="ranking != null">ranking,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="scienceName != null and scienceName != ''">#{scienceName},</if>
+            <if test="scienceNumber != null and scienceNumber != ''">#{scienceNumber},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="scienceMoney != null">#{scienceMoney},</if>
+            <if test="ranking != null">#{ranking},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiScience" parameterType="KpiScience">
+        update kpi_science
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="scienceName != null and scienceName != ''">science_name = #{scienceName},</if>
+            <if test="scienceNumber != null and scienceNumber != ''">science_number = #{scienceNumber},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="scienceMoney != null">science_money = #{scienceMoney},</if>
+            <if test="ranking != null">ranking = #{ranking},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where science_id = #{scienceId}
+    </update>
+
+    <delete id="deleteKpiScienceByScienceId" parameterType="Long">
+        delete from kpi_science where science_id = #{scienceId}
+    </delete>
+
+    <delete id="deleteKpiScienceByScienceIds" parameterType="String">
+        delete from kpi_science where science_id in 
+        <foreach item="scienceId" collection="array" open="(" separator="," close=")">
+            #{scienceId}
+        </foreach>
+    </delete>
+</mapper>

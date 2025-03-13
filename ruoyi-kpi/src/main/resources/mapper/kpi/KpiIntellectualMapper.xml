@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiIntellectualMapper">
+    
+    <resultMap type="KpiIntellectual" id="KpiIntellectualResult">
+        <result property="intellectualId"    column="intellectual_id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="intellectualName"    column="intellectual_name"    />
+        <result property="intellectualNumber"    column="intellectual_number"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiIntellectualVo">
+        select intellectual_id, teacher_id, intellectual_name, intellectual_number, publish_time, ranking, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_intellectual
+    </sql>
+
+    <sql id="selectKpiIntellectualVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_intellectual t
+          left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+    <select id="selectKpiIntellectualList" parameterType="KpiIntellectual" resultMap="KpiIntellectualResult">
+        <include refid="selectKpiIntellectualVoNew"/>
+        <where>  
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="intellectualName != null  and intellectualName != ''"> and t.intellectual_name like concat('%', #{intellectualName}, '%')</if>
+            <if test="intellectualNumber != null  and intellectualNumber != ''"> and t.intellectual_number like concat('%', #{intellectualNumber}, '%')</if>
+            <if test="params.beginPublishTime != null and params.beginPublishTime != '' and params.endPublishTime != null and params.endPublishTime != ''"> and t.publish_time between #{params.beginPublishTime} and #{params.endPublishTime}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiIntellectualByIntellectualId" parameterType="Long" resultMap="KpiIntellectualResult">
+        <include refid="selectKpiIntellectualVo"/>
+        where intellectual_id = #{intellectualId}
+    </select>
+
+    <select id="selectKpiIntellectualListProjectScoreDesc"  resultMap="KpiIntellectualResult">
+        <include refid="selectKpiIntellectualVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+
+
+    <insert id="insertKpiIntellectual" parameterType="KpiIntellectual" useGeneratedKeys="true" keyProperty="intellectualId">
+        insert into kpi_intellectual
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="intellectualName != null and intellectualName != ''">intellectual_name,</if>
+            <if test="intellectualNumber != null and intellectualNumber != ''">intellectual_number,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="ranking != null">ranking,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="intellectualName != null and intellectualName != ''">#{intellectualName},</if>
+            <if test="intellectualNumber != null and intellectualNumber != ''">#{intellectualNumber},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="ranking != null">#{ranking},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiIntellectual" parameterType="KpiIntellectual">
+        update kpi_intellectual
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="intellectualName != null and intellectualName != ''">intellectual_name = #{intellectualName},</if>
+            <if test="intellectualNumber != null and intellectualNumber != ''">intellectual_number = #{intellectualNumber},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="ranking != null">ranking = #{ranking},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where intellectual_id = #{intellectualId}
+    </update>
+
+    <delete id="deleteKpiIntellectualByIntellectualId" parameterType="Long">
+        delete from kpi_intellectual where intellectual_id = #{intellectualId}
+    </delete>
+
+    <delete id="deleteKpiIntellectualByIntellectualIds" parameterType="String">
+        delete from kpi_intellectual where intellectual_id in 
+        <foreach item="intellectualId" collection="array" open="(" separator="," close=")">
+            #{intellectualId}
+        </foreach>
+    </delete>
+</mapper>

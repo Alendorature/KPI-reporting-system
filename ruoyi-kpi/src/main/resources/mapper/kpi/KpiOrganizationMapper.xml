@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiOrganizationMapper">
+    
+    <resultMap type="KpiOrganization" id="KpiOrganizationResult">
+        <result property="organizationId"    column="organization_id"    />
+        <result property="organizationName"    column="organization_name"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="takeOfficeTime"    column="take_office_time"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiOrganizationVo">
+        select organization_id, organization_name, teacher_id, take_office_time, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_organization
+    </sql>
+
+    <sql id="selectKpiIntellectualVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_organization t
+         left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+    <select id="selectKpiOrganizationList" parameterType="KpiOrganization" resultMap="KpiOrganizationResult">
+        <include refid="selectKpiIntellectualVoNew"/>
+        <where>  
+            <if test="organizationName != null  and organizationName != ''"> and t.organization_name like concat('%', #{organizationName}, '%')</if>
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="takeOfficeTime != null "> and t.take_office_time = #{takeOfficeTime}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiOrganizationByOrganizationId" parameterType="Long" resultMap="KpiOrganizationResult">
+        <include refid="selectKpiOrganizationVo"/>
+        where organization_id = #{organizationId}
+    </select>
+
+    <select id="selectKpiOrganizationListProjectScoreDesc"  resultMap="KpiOrganizationResult">
+        <include refid="selectKpiOrganizationVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+
+
+
+    <insert id="insertKpiOrganization" parameterType="KpiOrganization" useGeneratedKeys="true" keyProperty="organizationId">
+        insert into kpi_organization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="organizationName != null and organizationName != ''">organization_name,</if>
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="takeOfficeTime != null">take_office_time,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="organizationName != null and organizationName != ''">#{organizationName},</if>
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="takeOfficeTime != null">#{takeOfficeTime},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiOrganization" parameterType="KpiOrganization">
+        update kpi_organization
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="organizationName != null and organizationName != ''">organization_name = #{organizationName},</if>
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="takeOfficeTime != null">take_office_time = #{takeOfficeTime},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where organization_id = #{organizationId}
+    </update>
+
+    <delete id="deleteKpiOrganizationByOrganizationId" parameterType="Long">
+        delete from kpi_organization where organization_id = #{organizationId}
+    </delete>
+
+    <delete id="deleteKpiOrganizationByOrganizationIds" parameterType="String">
+        delete from kpi_organization where organization_id in 
+        <foreach item="organizationId" collection="array" open="(" separator="," close=")">
+            #{organizationId}
+        </foreach>
+    </delete>
+</mapper>

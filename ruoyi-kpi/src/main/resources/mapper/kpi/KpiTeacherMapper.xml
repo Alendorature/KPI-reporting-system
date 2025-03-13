@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiTeacherMapper">
+    
+    <resultMap type="KpiTeacher" id="KpiTeacherResult">
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherCareer"    column="teacher_career"    />
+        <result property="teacherDepartment"    column="teacher_department"    />
+        <result property="deptName"   column="dept_name"   />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="teacherMail"    column="teacher_mail"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="KpiStatistics" id="KpiStatisticsResult">
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="sumPntProjectScore"    column="sum_pnt_project_score"    />
+        <result property="sumProProjectScore"    column="sum_pro_project_score"    />
+        <result property="sumInteProjectScore"    column="sum_inte_project_score"    />
+        <result property="sumStaProjectScore"    column="sum_sta_project_score"    />
+        <result property="sumAwaProjectScore"    column="sum_awa_project_score"    />
+        <result property="sumEpcProjectScore"    column="sum_epc_project_score"    />
+        <result property="sumOrgProjectScore"    column="sum_org_project_score"    />
+        <result property="sumSciProjectScore"    column="sum_sci_project_score"    />
+        <result property="sumTotal"    column="sum_total"    />
+    </resultMap>
+
+    <sql id="selectKpiTeacherVo">
+        select teacher_id, teacher_name,teacher_avatar, teacher_career, teacher_department, teacher_tel, teacher_mail, create_by, create_time, update_by, update_time, remark from kpi_teacher
+    </sql>
+
+
+    <sql id="selectKpiTeacherVoNew">
+        select t.*,d.dept_name from kpi_teacher t left join sys_dept d on t.teacher_department=d.dept_id
+    </sql>
+
+    <select id="selectKpiTeacherList" parameterType="KpiTeacher" resultMap="KpiTeacherResult">
+        <include refid="selectKpiTeacherVoNew"/>
+        <where>  
+            <if test="teacherName != null  and teacherName != ''"> and t.teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="teacherCareer != null  and teacherCareer != ''"> and t.teacher_career = #{teacherCareer}</if>
+            <if test="teacherDepartment != null  and teacherDepartment != ''"> and t.teacher_department = #{teacherDepartment}</if>
+            <if test="teacherTel != null "> and t.teacher_tel = #{teacherTel}</if>
+            <if test="teacherMail != null  and teacherMail != ''"> and t.teacher_mail = #{teacherMail}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiTeacherByTeacherId" parameterType="Long" resultMap="KpiTeacherResult">
+        <include refid="selectKpiTeacherVo"/>
+        where teacher_id = #{teacherId}
+    </select>
+
+    <select id="selectKpiList" resultMap="KpiStatisticsResult">
+        SELECT t.teacher_id,t.teacher_name,t.teacher_tel,t.teacher_avatar,ifnull(pnt.sum_project_score,0) as sum_pnt_project_score
+             ,ifnull(pro.sum_project_score,0) as sum_pro_project_score ,ifnull(inte.sum_project_score,0) as sum_inte_project_score
+             ,ifnull(sta.sum_project_score,0) as sum_sta_project_score ,ifnull(awa.sum_project_score,0) as sum_awa_project_score
+             ,ifnull(epc.sum_project_score,0) as sum_epc_project_score ,ifnull(org.sum_project_score,0) as sum_org_project_score
+             ,ifnull(sci.sum_project_score,0) as sum_sci_project_score
+            ,ifnull((ifnull( pnt.sum_project_score, 0 ) + ifnull( pro.sum_project_score, 0 )
+                         + ifnull( inte.sum_project_score, 0 ) + ifnull( sta.sum_project_score, 0 )
+                         + ifnull( awa.sum_project_score, 0 ) + ifnull( epc.sum_project_score, 0 )
+                         + ifnull( org.sum_project_score, 0 ) + ifnull( sci.sum_project_score, 0 )),0) as sum_total
+        FROM `kpi_teacher` t
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_paper_no_teach where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pnt  on pnt.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_project where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pro  on pro.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_intellectual where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) inte  on inte.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_standard where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sta  on sta.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_awards where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) awa  on awa.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_excellent_paper_chai where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) epc  on epc.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_organization org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) org  on org.teacher_id=t.teacher_id
+                 left join (select teacher_id,sum(project_score) as sum_project_score from kpi_science org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sci  on sci.teacher_id=t.teacher_id
+
+
+    </select>
+
+    <select id="selectKpiListTop10" resultMap="KpiStatisticsResult">
+       select * from(SELECT t.teacher_id,t.teacher_name,t.teacher_tel,t.teacher_avatar,ifnull(pnt.sum_project_score,0) as sum_pnt_project_score
+                          ,ifnull(pro.sum_project_score,0) as sum_pro_project_score ,ifnull(inte.sum_project_score,0) as sum_inte_project_score
+                          ,ifnull(sta.sum_project_score,0) as sum_sta_project_score ,ifnull(awa.sum_project_score,0) as sum_awa_project_score
+                          ,ifnull(epc.sum_project_score,0) as sum_epc_project_score ,ifnull(org.sum_project_score,0) as sum_org_project_score
+                          ,ifnull(sci.sum_project_score,0) as sum_sci_project_score
+                          ,ifnull((ifnull( pnt.sum_project_score, 0 ) + ifnull( pro.sum_project_score, 0 )
+               + ifnull( inte.sum_project_score, 0 ) + ifnull( sta.sum_project_score, 0 )
+               + ifnull( awa.sum_project_score, 0 ) + ifnull( epc.sum_project_score, 0 )
+               + ifnull( org.sum_project_score, 0 ) + ifnull( sci.sum_project_score, 0 )),0) as sum_total
+                     FROM `kpi_teacher` t
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_paper_no_teach where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pnt  on pnt.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_project where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pro  on pro.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_intellectual where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) inte  on inte.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_standard where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sta  on sta.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_awards where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) awa  on awa.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_excellent_paper_chai where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) epc  on epc.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_organization org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) org  on org.teacher_id=t.teacher_id
+                              left join (select teacher_id,sum(project_score) as sum_project_score from kpi_science org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sci  on sci.teacher_id=t.teacher_id)t
+       order by sum_total desc limit 0,10
+    </select>
+
+    <select id="selectCountTeacher" resultType="Long">
+        SELECT count(teacher_id) FROM kpi_teacher
+
+    </select>
+
+    <select id="checkPhoneUnique" parameterType="String" resultMap="KpiTeacherResult">
+        <include refid="selectKpiTeacherVo"/>
+        where teacher_tel = #{teacherTel} limit 1
+    </select>
+
+    <select id="selectSumCountByAuditState" resultType="Long">
+
+        SELECT sum(count) as sum_count from(SELECT count(awards_id) as count FROM kpi_awards where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(excellent_paper_chair_id) as count FROM kpi_excellent_paper_chai where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(intellectual_id)as count FROM kpi_intellectual where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(organization_id)as count FROM kpi_organization where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(paper_no_teach_id) as count FROM kpi_paper_no_teach where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(project_id)as count FROM kpi_project where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(science_id)as count FROM kpi_science where audit_state=#{auditState}
+                                            union ALL
+                                            SELECT count(standard_id)as count FROM kpi_standard where audit_state=#{auditState}) t
+
+    </select>
+
+    <select id="selectMaxSumTotal" resultType="Long">
+        SELECT max(sum_total) from(
+                                      SELECT t.teacher_id,t.teacher_name,t.teacher_tel,t.teacher_avatar,ifnull(pnt.sum_project_score,0) as sum_pnt_project_score
+                                           ,ifnull(pro.sum_project_score,0) as sum_pro_project_score ,ifnull(inte.sum_project_score,0) as sum_inte_project_score
+                                           ,ifnull(sta.sum_project_score,0) as sum_sta_project_score ,ifnull(awa.sum_project_score,0) as sum_awa_project_score
+                                           ,ifnull(epc.sum_project_score,0) as sum_epc_project_score ,ifnull(org.sum_project_score,0) as sum_org_project_score
+                                           ,ifnull(sci.sum_project_score,0) as sum_sci_project_score
+                                           ,ifnull((ifnull( pnt.sum_project_score, 0 ) + ifnull( pro.sum_project_score, 0 )
+                                          + ifnull( inte.sum_project_score, 0 ) + ifnull( sta.sum_project_score, 0 )
+                                          + ifnull( awa.sum_project_score, 0 ) + ifnull( epc.sum_project_score, 0 )
+                                          + ifnull( org.sum_project_score, 0 ) + ifnull( sci.sum_project_score, 0 )),0) as sum_total
+                                      FROM `kpi_teacher` t
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_paper_no_teach where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pnt  on pnt.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_project where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) pro  on pro.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_intellectual where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) inte  on inte.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_standard where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sta  on sta.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_awards where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) awa  on awa.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_excellent_paper_chai where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) epc  on epc.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_organization org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) org  on org.teacher_id=t.teacher_id
+                                               left join (select teacher_id,sum(project_score) as sum_project_score from kpi_science org where audit_state='1' and kpi_year=#{kpiYear} GROUP BY teacher_id) sci  on sci.teacher_id=t.teacher_id
+                                  )t
+    </select>
+
+    <insert id="insertKpiTeacher" parameterType="KpiTeacher" useGeneratedKeys="true" keyProperty="teacherId">
+        insert into kpi_teacher
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="teacherName != null and teacherName != ''">teacher_name,</if>
+            <if test="teacherCareer != null and teacherCareer != ''">teacher_career,</if>
+            <if test="teacherDepartment != null">teacher_department,</if>
+            <if test="teacherAvatar != null">teacher_avatar,</if>
+            <if test="teacherTel != null">teacher_tel,</if>
+            <if test="teacherMail != null">teacher_mail,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="teacherName != null and teacherName != ''">#{teacherName},</if>
+            <if test="teacherCareer != null and teacherCareer != ''">#{teacherCareer},</if>
+            <if test="teacherDepartment != null">#{teacherDepartment},</if>
+            <if test="teacherAvatar != null">#{teacherAvatar},</if>
+            <if test="teacherTel != null">#{teacherTel},</if>
+            <if test="teacherMail != null">#{teacherMail},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateKpiTeacher" parameterType="KpiTeacher">
+        update kpi_teacher
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherName != null and teacherName != ''">teacher_name = #{teacherName},</if>
+            <if test="teacherCareer != null and teacherCareer != ''">teacher_career = #{teacherCareer},</if>
+            <if test="teacherDepartment != null">teacher_department = #{teacherDepartment},</if>
+            <if test="teacherAvatar != null">teacher_avatar = #{teacherAvatar},</if>
+            <if test="teacherTel != null">teacher_tel = #{teacherTel},</if>
+            <if test="teacherMail != null">teacher_mail = #{teacherMail},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where teacher_id = #{teacherId}
+    </update>
+
+    <delete id="deleteKpiTeacherByTeacherId" parameterType="Long">
+        delete from kpi_teacher where teacher_id = #{teacherId}
+    </delete>
+
+    <delete id="deleteKpiTeacherByTeacherIds" parameterType="String">
+        delete from kpi_teacher where teacher_id in 
+        <foreach item="teacherId" collection="array" open="(" separator="," close=")">
+            #{teacherId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiPaperNoTeachMapper">
+    
+    <resultMap type="KpiPaperNoTeach" id="KpiPaperNoTeachResult">
+        <result property="paperNoTeachId"    column="paper_no_teach_id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="paperName"    column="paper_name"    />
+        <result property="periodicalName"    column="periodical_name"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="issueNumber"    column="Issue_number"    />
+        <result property="issnNumber"    column="issn_number"    />
+        <result property="startEndPageNumber"    column="start_end_page_number"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiPaperNoTeachVo">
+        select paper_no_teach_id, teacher_id, paper_name, periodical_name, publish_time, Issue_number, issn_number, start_end_page_number, ranking, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_paper_no_teach
+    </sql>
+
+    <sql id="selectKpiPaperNoTeachVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_paper_no_teach t
+            left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+    <select id="selectKpiPaperNoTeachList" parameterType="KpiPaperNoTeach" resultMap="KpiPaperNoTeachResult">
+        <include refid="selectKpiPaperNoTeachVoNew"/>
+        <where>  
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="paperName != null  and paperName != ''"> and t.paper_name like concat('%', #{paperName}, '%')</if>
+            <if test="periodicalName != null  and periodicalName != ''"> and t.periodical_name like concat('%', #{periodicalName}, '%')</if>
+            <if test="params.beginPublishTime != null and params.beginPublishTime != '' and params.endPublishTime != null and params.endPublishTime != ''"> and t.publish_time between #{params.beginPublishTime} and #{params.endPublishTime}</if>
+            <if test="issueNumber != null  and issueNumber != ''"> and t.Issue_number = #{issueNumber}</if>
+            <if test="issnNumber != null  and issnNumber != ''"> and t.issn_number = #{issnNumber}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+            <if test="teacherName != null  and teacherName != ''"> and tea.teacher_name like concat('%', #{teacherName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectKpiPaperNoTeachListProjectScoreDesc"  resultMap="KpiPaperNoTeachResult">
+        <include refid="selectKpiPaperNoTeachVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+    
+    <select id="selectKpiPaperNoTeachByPaperNoTeachId" parameterType="Long" resultMap="KpiPaperNoTeachResult">
+        <include refid="selectKpiPaperNoTeachVo"/>
+        where paper_no_teach_id = #{paperNoTeachId}
+    </select>
+        
+    <insert id="insertKpiPaperNoTeach" parameterType="KpiPaperNoTeach" useGeneratedKeys="true" keyProperty="paperNoTeachId">
+        insert into kpi_paper_no_teach
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="paperName != null and paperName != ''">paper_name,</if>
+            <if test="periodicalName != null and periodicalName != ''">periodical_name,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="issueNumber != null and issueNumber != ''">Issue_number,</if>
+            <if test="issnNumber != null and issnNumber != ''">issn_number,</if>
+            <if test="startEndPageNumber != null and startEndPageNumber != ''">start_end_page_number,</if>
+            <if test="ranking != null">ranking,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="paperName != null and paperName != ''">#{paperName},</if>
+            <if test="periodicalName != null and periodicalName != ''">#{periodicalName},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="issueNumber != null and issueNumber != ''">#{issueNumber},</if>
+            <if test="issnNumber != null and issnNumber != ''">#{issnNumber},</if>
+            <if test="startEndPageNumber != null and startEndPageNumber != ''">#{startEndPageNumber},</if>
+            <if test="ranking != null">#{ranking},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiPaperNoTeach" parameterType="KpiPaperNoTeach">
+        update kpi_paper_no_teach
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="paperName != null and paperName != ''">paper_name = #{paperName},</if>
+            <if test="periodicalName != null and periodicalName != ''">periodical_name = #{periodicalName},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="issueNumber != null and issueNumber != ''">Issue_number = #{issueNumber},</if>
+            <if test="issnNumber != null and issnNumber != ''">issn_number = #{issnNumber},</if>
+            <if test="startEndPageNumber != null and startEndPageNumber != ''">start_end_page_number = #{startEndPageNumber},</if>
+            <if test="ranking != null">ranking = #{ranking},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where paper_no_teach_id = #{paperNoTeachId}
+    </update>
+
+    <delete id="deleteKpiPaperNoTeachByPaperNoTeachId" parameterType="Long">
+        delete from kpi_paper_no_teach where paper_no_teach_id = #{paperNoTeachId}
+    </delete>
+
+    <delete id="deleteKpiPaperNoTeachByPaperNoTeachIds" parameterType="String">
+        delete from kpi_paper_no_teach where paper_no_teach_id in 
+        <foreach item="paperNoTeachId" collection="array" open="(" separator="," close=")">
+            #{paperNoTeachId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.kpi.mapper.KpiProjectMapper">
+    
+    <resultMap type="KpiProject" id="KpiProjectResult">
+        <result property="projectId"    column="project_id"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="teacherAvatar"    column="teacher_avatar"    />
+        <result property="teacherTel"    column="teacher_tel"    />
+        <result property="projectName"    column="project_name"    />
+        <result property="projectSource"    column="project_source"    />
+        <result property="projectNumber"    column="project_number"    />
+        <result property="financeAccountNumber"    column="finance_account_number"    />
+        <result property="projectStartTime"    column="project_start_time"    />
+        <result property="projectEndTime"    column="project_end_time"    />
+        <result property="accountExpenditure"    column="account_expenditure"    />
+        <result property="outExpenditure"    column="out_expenditure"    />
+        <result property="actualExpenditure"    column="actual_expenditure"    />
+        <result property="isFirstAppropriation"    column="is_first_appropriation"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="magnitudeId"    column="magnitude_id"    />
+        <result property="magnitudeName"    column="magnitude_name"    />
+        <result property="projectScore"    column="project_score"    />
+        <result property="kpiYear"    column="kpi_year"    />
+        <result property="auditState"    column="audit_state"    />
+        <result property="rejectCause"    column="reject_cause"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectKpiProjectVo">
+        select project_id, teacher_id, project_name, project_source, project_number, finance_account_number, project_start_time, project_end_time, account_expenditure, out_expenditure, actual_expenditure, is_first_appropriation, ranking, magnitude_id, project_score, kpi_year, audit_state, reject_cause, create_by, create_time, update_by, update_time, remark from kpi_project
+    </sql>
+    <sql id="selectKpiProjectVoNew">
+        select t.*,tea.teacher_name,tea.teacher_tel,tea.teacher_avatar,m.magnitude_name from kpi_project t
+         left join kpi_teacher tea on tea.teacher_id=t.teacher_id left JOIN kpi_magnitude m on t.magnitude_id=m.magnitude_id
+    </sql>
+
+    <select id="selectKpiProjectList" parameterType="KpiProject" resultMap="KpiProjectResult">
+        <include refid="selectKpiProjectVoNew"/>
+        <where>  
+            <if test="teacherId != null "> and t.teacher_id = #{teacherId}</if>
+            <if test="projectName != null  and projectName != ''"> and t.project_name like concat('%', #{projectName}, '%')</if>
+            <if test="projectSource != null  and projectSource != ''"> and t.project_source = #{projectSource}</if>
+            <if test="projectNumber != null  and projectNumber != ''"> and t.project_number = #{projectNumber}</if>
+            <if test="financeAccountNumber != null  and financeAccountNumber != ''"> and t.finance_account_number = #{financeAccountNumber}</if>
+            <if test="params.beginProjectStartTime != null and params.beginProjectStartTime != '' and params.endProjectStartTime != null and params.endProjectStartTime != ''"> and t.project_start_time between #{params.beginProjectStartTime} and #{params.endProjectStartTime}</if>
+            <if test="params.beginProjectEndTime != null and params.beginProjectEndTime != '' and params.endProjectEndTime != null and params.endProjectEndTime != ''"> and t.project_end_time between #{params.beginProjectEndTime} and #{params.endProjectEndTime}</if>
+            <if test="accountExpenditure != null "> and t.account_expenditure = #{accountExpenditure}</if>
+            <if test="outExpenditure != null "> and t.out_expenditure = #{outExpenditure}</if>
+            <if test="actualExpenditure != null "> and t.actual_expenditure = #{actualExpenditure}</if>
+            <if test="isFirstAppropriation != null  and isFirstAppropriation != ''"> and t.is_first_appropriation = #{isFirstAppropriation}</if>
+            <if test="ranking != null "> and t.ranking = #{ranking}</if>
+            <if test="magnitudeId != null "> and t.magnitude_id = #{magnitudeId}</if>
+            <if test="projectScore != null "> and t.project_score = #{projectScore}</if>
+            <if test="kpiYear != null  and kpiYear != ''"> and t.kpi_year = #{kpiYear}</if>
+            <if test="auditState != null  and auditState != ''"> and t.audit_state = #{auditState}</if>
+        </where>
+    </select>
+    
+    <select id="selectKpiProjectByProjectId" parameterType="Long" resultMap="KpiProjectResult">
+        <include refid="selectKpiProjectVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectKpiProjectListProjectScoreDesc"  resultMap="KpiProjectResult">
+        <include refid="selectKpiProjectVo"/>
+        where audit_state='1' order by project_score desc
+    </select>
+
+
+    <insert id="insertKpiProject" parameterType="KpiProject" useGeneratedKeys="true" keyProperty="projectId">
+        insert into kpi_project
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id,</if>
+            <if test="projectName != null and projectName != ''">project_name,</if>
+            <if test="projectSource != null and projectSource != ''">project_source,</if>
+            <if test="projectNumber != null and projectNumber != ''">project_number,</if>
+            <if test="financeAccountNumber != null and financeAccountNumber != ''">finance_account_number,</if>
+            <if test="projectStartTime != null">project_start_time,</if>
+            <if test="projectEndTime != null">project_end_time,</if>
+            <if test="accountExpenditure != null">account_expenditure,</if>
+            <if test="outExpenditure != null">out_expenditure,</if>
+            <if test="actualExpenditure != null">actual_expenditure,</if>
+            <if test="isFirstAppropriation != null and isFirstAppropriation != ''">is_first_appropriation,</if>
+            <if test="ranking != null">ranking,</if>
+            <if test="magnitudeId != null">magnitude_id,</if>
+            <if test="projectScore != null">project_score,</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year,</if>
+            <if test="auditState != null">audit_state,</if>
+            <if test="rejectCause != null">reject_cause,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teacherId != null">#{teacherId},</if>
+            <if test="projectName != null and projectName != ''">#{projectName},</if>
+            <if test="projectSource != null and projectSource != ''">#{projectSource},</if>
+            <if test="projectNumber != null and projectNumber != ''">#{projectNumber},</if>
+            <if test="financeAccountNumber != null and financeAccountNumber != ''">#{financeAccountNumber},</if>
+            <if test="projectStartTime != null">#{projectStartTime},</if>
+            <if test="projectEndTime != null">#{projectEndTime},</if>
+            <if test="accountExpenditure != null">#{accountExpenditure},</if>
+            <if test="outExpenditure != null">#{outExpenditure},</if>
+            <if test="actualExpenditure != null">#{actualExpenditure},</if>
+            <if test="isFirstAppropriation != null and isFirstAppropriation != ''">#{isFirstAppropriation},</if>
+            <if test="ranking != null">#{ranking},</if>
+            <if test="magnitudeId != null">#{magnitudeId},</if>
+            <if test="projectScore != null">#{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">#{kpiYear},</if>
+            <if test="auditState != null">#{auditState},</if>
+            <if test="rejectCause != null">#{rejectCause},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKpiProject" parameterType="KpiProject">
+        update kpi_project
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teacherId != null">teacher_id = #{teacherId},</if>
+            <if test="projectName != null and projectName != ''">project_name = #{projectName},</if>
+            <if test="projectSource != null and projectSource != ''">project_source = #{projectSource},</if>
+            <if test="projectNumber != null and projectNumber != ''">project_number = #{projectNumber},</if>
+            <if test="financeAccountNumber != null and financeAccountNumber != ''">finance_account_number = #{financeAccountNumber},</if>
+            <if test="projectStartTime != null">project_start_time = #{projectStartTime},</if>
+            <if test="projectEndTime != null">project_end_time = #{projectEndTime},</if>
+            <if test="accountExpenditure != null">account_expenditure = #{accountExpenditure},</if>
+            <if test="outExpenditure != null">out_expenditure = #{outExpenditure},</if>
+            <if test="actualExpenditure != null">actual_expenditure = #{actualExpenditure},</if>
+            <if test="isFirstAppropriation != null and isFirstAppropriation != ''">is_first_appropriation = #{isFirstAppropriation},</if>
+            <if test="ranking != null">ranking = #{ranking},</if>
+            <if test="magnitudeId != null">magnitude_id = #{magnitudeId},</if>
+            <if test="projectScore != null">project_score = #{projectScore},</if>
+            <if test="kpiYear != null and kpiYear != ''">kpi_year = #{kpiYear},</if>
+            <if test="auditState != null">audit_state = #{auditState},</if>
+            <if test="rejectCause != null">reject_cause = #{rejectCause},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where project_id = #{projectId}
+    </update>
+
+    <delete id="deleteKpiProjectByProjectId" parameterType="Long">
+        delete from kpi_project where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteKpiProjectByProjectIds" parameterType="String">
+        delete from kpi_project where project_id in 
+        <foreach item="projectId" collection="array" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+    </delete>
+</mapper>
