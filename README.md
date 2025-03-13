@@ -3,7 +3,7 @@
 </p>
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">基于 SSM 的学院级科研 KPI 填报系统</h1>
 <h3 align="center">KPI-reporting-system</h3>
-<img src=".\KPI_pic1.png" width = 300 height = 200>
+<img src=".\KPI_pic1.png">
 
 ## 内置功能
 
