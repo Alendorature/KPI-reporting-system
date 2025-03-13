@@ -2,7 +2,7 @@
 	<img alt="logo" src="https://oscimg.oschina.net/oscnet/up-d3d0a9303e11d522a06cd263f3079027715.png">
 </p>
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">基于 SSM 的学院级科研 KPI 填报系统</h1>
-<h4 align="center"></h4>
+<h4 align="center">KPI-reporting-system</h4>
 
 ## 内置功能
 
@@ -25,4 +25,3 @@
 17. 在线构建器：拖动表单元素生成相应的HTML代码。
 18. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
 
-# KPI-reporting-system
